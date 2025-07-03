@@ -2,18 +2,40 @@
 
 The backend uses Supabase as the database for storing and retrieving notes.
 
-## Environment Variables
+## Environment Variable Setup
 
-You must provide the following in your environment, recommended via a `.env` file:
+**Supabase credentials are loaded from environment variables by the backend automatically.**
 
-- `SUPABASE_URL`: The REST endpoint for your Supabase project (see [Supabase Project Settings](https://app.supabase.io/project/_/settings/api)).
-- `SUPABASE_KEY`: The service role or anon API key for the project (Service Role preferred for backend).
+You must provide the following variables before starting the backend (e.g., in a `.env` file or your deployment config):
 
-Example `.env`:
+- `SUPABASE_URL` – The REST endpoint for your Supabase project ([see Project Settings → API](https://app.supabase.io/project/_/settings/api))
+- `SUPABASE_KEY` – The service role or anon API key (Service Role preferred for backend)
+
+Example `.env` (do **not** commit this file to git):
+
 ```
 SUPABASE_URL=https://qgmcdylmdodofjpuuklq.supabase.co
-SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_KEY=your-actual-key-here
 ```
+
+You can use [python-dotenv](https://pypi.org/project/python-dotenv/) for local development; the backend will load the environment from `.env` automatically if present.
+
+**If running in production (Docker, Cloud, etc), be sure these env vars are set for the container.**
+
+## Usage in Code
+
+The backend code (`supabase_client.py`) reads these variables at runtime and raises an error if they are missing.
+
+No manual configuration is required—just set the environment variables and run:
+
+```bash
+uvicorn src.api.main:app --reload
+```
+
+If running tests or using an IDE, make sure your environment is loaded, e.g.:
+- `.env` file in the root of `notes_backend`
+- Or, export variables manually:  
+  `export SUPABASE_URL=... && export SUPABASE_KEY=...`
 
 ## Note Table Schema
 
@@ -27,7 +49,7 @@ A `notes` table MUST exist in your Supabase project. Example schema:
 | created_at | timestamptz   | Auto     | Auto-generated on insert      |
 | updated_at | timestamptz   | Auto     | Auto-generated on update      |
 
-You can create this using the Supabase dashboard or SQL:
+You can create this using the Supabase dashboard or SQL CLI:
 ```sql
 create table notes (
     id bigint generated always as identity primary key,
@@ -44,4 +66,4 @@ Supabase is integrated via the `supabase-py` client (see `supabase_client.py`). 
 
 ## Security
 
-Do **not** expose your `SUPABASE_KEY` in client-side code. Keys stay only in backend/server env.
+Do **not** expose your `SUPABASE_KEY` in client-side code. Keys stay only in backend/server environment.

@@ -8,17 +8,23 @@ from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 from supabase import create_client, Client
 
-# Load environment variables from .env if present
+# Always load environment variables from a .env file if present.
+# This supports local development; production can provide env vars directly.
 load_dotenv()
 
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-
 def get_supabase_client() -> Client:
-    """Creates and returns an authenticated Supabase client."""
-    if not SUPABASE_URL or not SUPABASE_KEY:
-        raise RuntimeError("Missing SUPABASE_URL or SUPABASE_KEY in environment")
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    """
+    Creates and returns an authenticated Supabase client,
+    using SUPABASE_URL and SUPABASE_KEY from the environment.
+    """
+    supabase_url = os.getenv("SUPABASE_URL")
+    supabase_key = os.getenv("SUPABASE_KEY")
+    if not supabase_url or not supabase_key:
+        raise RuntimeError(
+            "Missing SUPABASE_URL or SUPABASE_KEY in environment. "
+            "Set these variables or provide a .env file (see supabase.md/README)."
+        )
+    return create_client(supabase_url, supabase_key)
 
 # PUBLIC_INTERFACE
 class Note(BaseModel):
